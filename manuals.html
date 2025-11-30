@@ -108,15 +108,6 @@
             margin: 0;
         }
 
-        .manual-category {
-            padding: 5px 15px;
-            border-radius: 15px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            background-color: #e8f5e9;
-            color: #2e7d32;
-        }
-
         .manual-department {
             padding: 5px 15px;
             border-radius: 15px;
@@ -124,7 +115,6 @@
             font-weight: 600;
             background-color: #e3f2fd;
             color: #1565c0;
-            margin-right: 10px;
         }
 
         .manual-content {
@@ -184,10 +174,6 @@
         .add-file-btn {
             margin-bottom: 15px;
         }
-
-        .department-filter {
-            margin-bottom: 15px;
-        }
     </style>
 </head>
 
@@ -222,18 +208,16 @@
             </div>
             <div class="card-body">
                 <div class="filter-buttons">
-                    <button class="btn btn-outline-primary filter-btn active" data-category="all">سەرجەمیان</button>
-                    <button class="btn btn-outline-primary filter-btn" data-category="safety">هاڕین</button>
-                    <button class="btn btn-outline-primary filter-btn" data-category="operation">ئامادەکردن</button>
-                    <button class="btn btn-outline-primary filter-btn" data-category="maintenance">بڕین</button>
-                    <button class="btn btn-outline-primary filter-btn" data-category="emergency">بارکردن</button>
-                    <button class="btn btn-outline-primary filter-btn" data-category="emergency">فڕن</button>
-                    <button class="btn btn-outline-primary filter-btn" data-category="emergency">درایەر</button>
-                    <button class="btn btn-outline-primary filter-btn" data-category="emergency">داگرتن</button>
-                    <button class="btn btn-outline-primary filter-btn" data-category="emergency">کارەبا</button>
+                    <button class="btn btn-outline-primary filter-btn active" data-department="all">هەموو</button>
+                    <button class="btn btn-outline-primary filter-btn" data-department="mixing">هاڕین</button>
+                    <button class="btn btn-outline-primary filter-btn" data-department="preparation">ئامادەکردن</button>
+                    <button class="btn btn-outline-primary filter-btn" data-department="cutting">بڕین</button>
+                    <button class="btn btn-outline-primary filter-btn" data-department="loading">بارکردن</button>
+                    <button class="btn btn-outline-primary filter-btn" data-department="forklift">فڕن</button>
+                    <button class="btn btn-outline-primary filter-btn" data-department="driver">درایەر</button>
+                    <button class="btn btn-outline-primary filter-btn" data-department="packing">داگرتن</button>
+                    <button class="btn btn-outline-primary filter-btn" data-department="electricity">کارەبا</button>
                 </div>
-
-    
 
                 <div id="manualsList">
                     <!-- Manuals will be loaded here -->
@@ -262,19 +246,18 @@
                             <input type="text" class="form-control" id="manualTitle" required>
                         </div>
                         <div class="mb-3">
-                            <label for="manualCategory" class="form-label">بەش</label>
-                            <select class="form-select" id="manualCategory" required>
-                                <option value="safety">هاڕین</option>
-                                <option value="operation">ئامادەکردن</option>
-                                <option value="maintenance">بڕین</option>
-                                <option value="emergency">بارکردن</option>
-                                <option value="emergency">فڕن</option>
-                                <option value="emergency">درایەر</option>
-                                <option value="emergency">داگرتن</option>
-                                <option value="emergency">کارەبا</option>
+                            <label for="manualDepartment" class="form-label">بەش</label>
+                            <select class="form-select" id="manualDepartment" required>
+                                <option value="mixing">هاڕین</option>
+                                <option value="preparation">ئامادەکردن</option>
+                                <option value="cutting">بڕین</option>
+                                <option value="loading">بارکردن</option>
+                                <option value="forklift">فڕن</option>
+                                <option value="driver">درایەر</option>
+                                <option value="packing">داگرتن</option>
+                                <option value="electricity">کارەبا</option>
                             </select>
                         </div>
-                        
                         <div class="mb-3">
                             <label for="manualContent" class="form-label">ناوەڕۆک</label>
                             <textarea class="form-control" id="manualContent" rows="6" required></textarea>
@@ -316,7 +299,6 @@
 
         let currentUser = null;
         let manuals = [];
-        let currentFilter = 'all';
         let currentDepartmentFilter = 'all';
 
         // Check authentication
@@ -358,21 +340,16 @@
             window.location.href = 'index.html';
         });
 
-        // Category names in Kurdish
-        const categoryNames = {
-            'safety': 'پاراستن',
-            'operation': 'کارکردن',
-            'maintenance': 'چاککردنەوە',
-            'emergency': 'فریاگوزاری'
-        };
-
         // Department names in Kurdish
         const departmentNames = {
-            'production': 'بەشی بەرهەمهێنان',
-            'quality': 'بەشی جۆرەیی',
-            'maintenance': 'بەشی چاککردنەوە',
-            'safety': 'بەشی پاراستن',
-            'general': 'گشتی'
+            'mixing': 'هاڕین',
+            'preparation': 'ئامادەکردن',
+            'cutting': 'بڕین',
+            'loading': 'بارکردن',
+            'forklift': 'فڕن',
+            'driver': 'درایەر',
+            'packing': 'داگرتن',
+            'electricity': 'کارەبا'
         };
 
         // Load manuals from Firebase
@@ -393,18 +370,10 @@
         function renderManuals() {
             const container = document.getElementById('manualsList');
             
-            // Apply filters
-            let filteredManuals = manuals;
-            
-            // Category filter
-            if (currentFilter !== 'all') {
-                filteredManuals = filteredManuals.filter(m => m.category === currentFilter);
-            }
-            
-            // Department filter
-            if (currentDepartmentFilter !== 'all') {
-                filteredManuals = filteredManuals.filter(m => m.department === currentDepartmentFilter);
-            }
+            // Apply department filter
+            let filteredManuals = currentDepartmentFilter === 'all' 
+                ? manuals 
+                : manuals.filter(m => m.department === currentDepartmentFilter);
 
             if (filteredManuals.length === 0) {
                 container.innerHTML = `
@@ -420,10 +389,7 @@
                 <div class="manual-item">
                     <div class="manual-header">
                         <h3 class="manual-title">${manual.title}</h3>
-                        <div>
-                            <span class="manual-department">${departmentNames[manual.department]}</span>
-                            <span class="manual-category">${categoryNames[manual.category]}</span>
-                        </div>
+                        <span class="manual-department">${departmentNames[manual.department]}</span>
                     </div>
                     <div class="manual-content">${manual.content}</div>
                     ${manual.files && manual.files.length > 0 ? `
@@ -450,20 +416,14 @@
             `).join('');
         }
 
-        // Filter buttons
+        // Department filter buttons
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', function () {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
-                currentFilter = this.dataset.category;
+                currentDepartmentFilter = this.dataset.department;
                 renderManuals();
             });
-        });
-
-        // Department filter
-        document.getElementById('departmentFilter').addEventListener('change', function() {
-            currentDepartmentFilter = this.value;
-            renderManuals();
         });
 
         // Add manual button
@@ -495,7 +455,6 @@
         // Save manual
         document.getElementById('saveManualBtn').addEventListener('click', async function () {
             const title = document.getElementById('manualTitle').value;
-            const category = document.getElementById('manualCategory').value;
             const department = document.getElementById('manualDepartment').value;
             const content = document.getElementById('manualContent').value;
             
@@ -515,14 +474,13 @@
                 }
             }
 
-            if (!title || !category || !department || !content) {
+            if (!title || !department || !content) {
                 alert('تکایە هەموو خانە پێویستەکان پڕبکەرەوە');
                 return;
             }
 
             const manualData = {
                 title,
-                category,
                 department,
                 content,
                 files: files.length > 0 ? files : null,
