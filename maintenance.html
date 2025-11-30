@@ -408,15 +408,15 @@
                             <!-- Maintenance Fields -->
                             <div class="col-md-6 maintenance-field">
                                 <label class="form-label">ناوی پارچە / کار</label>
-                                <input type="text" class="form-control" id="recPart">
+                                <input type="text" class="form-control" id="recPart" required>
                             </div>
                             <div class="col-md-6 maintenance-field">
                                 <label class="form-label">بڕ / ژمارە</label>
-                                <input type="number" class="form-control" id="recQty" value="1">
+                                <input type="number" class="form-control" id="recQty" value="1" required>
                             </div>
                             <div class="col-md-6 maintenance-field">
                                 <label class="form-label">ماوەی مانەوە (Frequency - ڕۆژ)</label>
-                                <input type="number" class="form-control" id="recFreq"
+                                <input type="number" class="form-control" id="recFreq" required
                                     placeholder="e.g. 365 for 1 year">
                                 <small class="text-muted">ئەمە دیاری دەکات کەی دیسان پێویستە بگۆڕدرێت</small>
                             </div>
@@ -424,7 +424,7 @@
                             <!-- Problem Fields -->
                             <div class="col-md-12 problem-field" style="display:none;">
                                 <label class="form-label">کێشە (Problem Description)</label>
-                                <input type="text" class="form-control" id="recProblem">
+                                <input type="text" class="form-control" id="recProblem" required>
                             </div>
                             <div class="col-md-12 problem-field" style="display:none;">
                                 <label class="form-label">هۆکاری سەرەکی (Root Cause)</label>
@@ -433,7 +433,7 @@
                             </div>
                             <div class="col-md-6 problem-field" style="display:none;">
                                 <label class="form-label">ماوەی وەستان (Downtime Hours)</label>
-                                <input type="number" step="0.1" class="form-control" id="recDowntime"
+                                <input type="number" step="0.1" class="form-control" id="recDowntime" required
                                     placeholder="Hours">
                             </div>
                             <div class="col-md-6 problem-field" style="display:none;">
@@ -576,6 +576,8 @@
         // --- 5. DATA LOADING & LOGIC ---
         async function loadMachineData(machineId) {
             try {
+                console.log("Loading data for machine:", machineId);
+                
                 // Get Machine Details
                 const mDoc = await db.collection('machines').doc(machineId).get();
                 if (!mDoc.exists) {
@@ -583,8 +585,9 @@
                     return;
                 }
                 currentMachineData = mDoc.data();
+                console.log("Machine data:", currentMachineData);
 
-                // Load Maintenance Logs (machine_logs collection)
+                // Load Maintenance Logs
                 const maintSnapshot = await db.collection('machine_logs')
                     .where('machineId', '==', machineId)
                     .where('type', '==', 'maintenance')
@@ -592,7 +595,19 @@
                     .get();
 
                 const maintLogs = [];
-                maintSnapshot.forEach(doc => maintLogs.push({ id: doc.id, ...doc.data() }));
+                maintSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    maintLogs.push({ 
+                        id: doc.id, 
+                        ...data,
+                        date: data.date || '-',
+                        part: data.part || '-',
+                        quantity: data.quantity || 1,
+                        frequency: data.frequency || '-',
+                        note: data.note || ''
+                    });
+                });
+                console.log("Maintenance logs:", maintLogs);
 
                 // Load Problem Logs
                 const probSnapshot = await db.collection('machine_logs')
@@ -602,7 +617,19 @@
                     .get();
 
                 const probLogs = [];
-                probSnapshot.forEach(doc => probLogs.push({ id: doc.id, ...doc.data() }));
+                probSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    probLogs.push({ 
+                        id: doc.id, 
+                        ...data,
+                        date: data.date || '-',
+                        problem: data.problem || '-',
+                        rootCause: data.rootCause || '-',
+                        downtime: data.downtime || 0,
+                        solution: data.solution || '-'
+                    });
+                });
+                console.log("Problem logs:", probLogs);
 
                 // Render Views
                 renderMaintenanceTable(maintLogs);
@@ -610,6 +637,7 @@
                 calculateKPIs(probLogs, maintLogs);
                 renderChart(maintLogs);
                 renderPredictions(maintLogs);
+                
             } catch (err) {
                 console.error("Error loading machine data:", err);
                 alert("هەڵە لە بارکردنی داتاکان: " + err.message);
@@ -621,50 +649,56 @@
             const tbody = document.getElementById('maintenanceLogBody');
             tbody.innerHTML = '';
 
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">هیچ تۆمارێک نییە</td></tr>';
+                return;
+            }
+
             logs.forEach(log => {
                 const year = log.date ? log.date.substring(0, 4) : '-';
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${log.date || '-'}</td>
+                    <td>${log.date}</td>
                     <td>${year}</td>
-                    <td class="fw-bold">${log.part || '-'}</td>
-                    <td>${log.quantity || 1}</td>
+                    <td class="fw-bold">${log.part}</td>
+                    <td>${log.quantity}</td>
                     <td>${log.frequency ? log.frequency + ' Days' : '-'}</td>
-                    <td class="text-muted small">${log.note || ''}</td>
+                    <td class="text-muted small">${log.note}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteLog('${log.id}')"><i class="bi bi-trash"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteLog('${log.id}')">
+                            <i class="bi bi-trash"></i>
+                        </button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
-
-            if (logs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">هیچ تۆمارێک نییە</td></tr>';
-            }
         }
 
         function renderProblemTable(logs) {
             const tbody = document.getElementById('problemLogBody');
             tbody.innerHTML = '';
 
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">هیچ تۆمارێک نییە</td></tr>';
+                return;
+            }
+
             logs.forEach(log => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${log.date || '-'}</td>
-                    <td class="fw-bold text-danger">${log.problem || '-'}</td>
-                    <td>${log.rootCause || '-'}</td>
-                    <td><span class="badge bg-warning text-dark">${log.downtime || 0} Hrs</span></td>
-                    <td>${log.solution || '-'}</td>
+                    <td>${log.date}</td>
+                    <td class="fw-bold text-danger">${log.problem}</td>
+                    <td>${log.rootCause}</td>
+                    <td><span class="badge bg-warning text-dark">${log.downtime} Hrs</span></td>
+                    <td>${log.solution}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteLog('${log.id}')"><i class="bi bi-trash"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteLog('${log.id}')">
+                            <i class="bi bi-trash"></i>
+                        </button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
-
-            if (logs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">هیچ تۆمارێک نییە</td></tr>';
-            }
         }
 
         // --- 7. CALCULATIONS (MTTR, MTBF) ---
@@ -673,7 +707,9 @@
             let failureCount = probLogs.length;
 
             // 1. Total Downtime & MTTR
-            probLogs.forEach(p => totalDowntime += parseFloat(p.downtime || 0));
+            probLogs.forEach(p => {
+                totalDowntime += parseFloat(p.downtime || 0);
+            });
 
             const mttr = failureCount > 0 ? (totalDowntime / failureCount).toFixed(1) : 0;
             document.getElementById('kpiMTTR').textContent = mttr;
@@ -681,7 +717,7 @@
 
             // 2. MTBF Calculation
             let daysRunning = 365; // Default 1 year if no date
-            if (currentMachineData.commissionDate) {
+            if (currentMachineData && currentMachineData.commissionDate) {
                 const start = new Date(currentMachineData.commissionDate);
                 const now = new Date();
                 const diffTime = Math.abs(now - start);
@@ -704,7 +740,7 @@
             // Group by Year
             const years = {};
             logs.forEach(log => {
-                if (log.date) {
+                if (log.date && log.date !== '-') {
                     const y = log.date.substring(0, 4);
                     years[y] = (years[y] || 0) + 1;
                 }
@@ -760,7 +796,7 @@
             const sortedLogs = [...logs].sort((a, b) => new Date(a.date) - new Date(b.date));
 
             sortedLogs.forEach(log => {
-                if (log.part && log.frequency && log.frequency > 0) {
+                if (log.part && log.part !== '-' && log.frequency && log.frequency > 0) {
                     partHistory[log.part] = {
                         date: log.date,
                         freq: parseInt(log.frequency)
@@ -834,15 +870,16 @@
 
             if (type === 'maintenance') {
                 data.part = document.getElementById('recPart').value;
-                data.quantity = document.getElementById('recQty').value;
-                data.frequency = document.getElementById('recFreq').value;
-                // Cost field removed as requested
+                data.quantity = parseInt(document.getElementById('recQty').value);
+                data.frequency = parseInt(document.getElementById('recFreq').value);
             } else {
                 data.problem = document.getElementById('recProblem').value;
                 data.rootCause = document.getElementById('recRootCause').value;
-                data.downtime = document.getElementById('recDowntime').value;
+                data.downtime = parseFloat(document.getElementById('recDowntime').value);
                 data.solution = document.getElementById('recSolution').value;
             }
+
+            console.log("Adding record:", data);
 
             try {
                 await db.collection('machine_logs').add(data);
