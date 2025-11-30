@@ -587,48 +587,45 @@
                 currentMachineData = mDoc.data();
                 console.log("Machine data:", currentMachineData);
 
-                // Load Maintenance Logs
-                const maintSnapshot = await db.collection('machine_logs')
+                // Load ALL logs for this machine first (without complex queries)
+                const allLogsSnapshot = await db.collection('machine_logs')
                     .where('machineId', '==', machineId)
-                    .where('type', '==', 'maintenance')
-                    .orderBy('date', 'desc')
                     .get();
+
+                console.log("All logs found:", allLogsSnapshot.size);
 
                 const maintLogs = [];
-                maintSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    maintLogs.push({ 
-                        id: doc.id, 
-                        ...data,
-                        date: data.date || '-',
-                        part: data.part || '-',
-                        quantity: data.quantity || 1,
-                        frequency: data.frequency || '-',
-                        note: data.note || ''
-                    });
-                });
-                console.log("Maintenance logs:", maintLogs);
-
-                // Load Problem Logs
-                const probSnapshot = await db.collection('machine_logs')
-                    .where('machineId', '==', machineId)
-                    .where('type', '==', 'problem')
-                    .orderBy('date', 'desc')
-                    .get();
-
                 const probLogs = [];
-                probSnapshot.forEach(doc => {
+
+                allLogsSnapshot.forEach(doc => {
                     const data = doc.data();
-                    probLogs.push({ 
+                    const logEntry = { 
                         id: doc.id, 
                         ...data,
                         date: data.date || '-',
-                        problem: data.problem || '-',
-                        rootCause: data.rootCause || '-',
-                        downtime: data.downtime || 0,
-                        solution: data.solution || '-'
-                    });
+                        note: data.note || ''
+                    };
+
+                    // Separate by type
+                    if (data.type === 'maintenance') {
+                        logEntry.part = data.part || '-';
+                        logEntry.quantity = data.quantity || 1;
+                        logEntry.frequency = data.frequency || '-';
+                        maintLogs.push(logEntry);
+                    } else if (data.type === 'problem') {
+                        logEntry.problem = data.problem || '-';
+                        logEntry.rootCause = data.rootCause || '-';
+                        logEntry.downtime = data.downtime || 0;
+                        logEntry.solution = data.solution || '-';
+                        probLogs.push(logEntry);
+                    }
                 });
+
+                // Sort manually since we can't use orderBy with complex queries
+                maintLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+                probLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                console.log("Maintenance logs:", maintLogs);
                 console.log("Problem logs:", probLogs);
 
                 // Render Views
