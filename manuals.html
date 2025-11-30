@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASOBRICK FACTORY - مانوەڵەکان</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #388e3c;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #388e3c, #1b5e20);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            margin: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-logo {
+            height: 60px;
+            margin-left: 20px;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .container-main {
+            padding: 20px;
+        }
+
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            border: none;
+        }
+
+        .card-header {
+            background: linear-gradient(to right, var(--primary-color), #2e7d32);
+            color: white;
+            border-radius: 8px 8px 0 0 !important;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #2e7d32;
+            border-color: #2e7d32;
+        }
+
+        .manual-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background-color: #fff;
+            transition: all 0.2s ease;
+        }
+
+        .manual-item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .manual-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .manual-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .manual-category {
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .manual-content {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .manual-file {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .manual-file i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .filter-buttons {
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            margin-left: 10px;
+            margin-bottom: 10px;
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-brand">
+            <img src="https://z-cdn-media.chatglm.cn/files/588e3070-4da2-4621-a23a-c3797a169aba_Aso-Brick-Factory.jpg?auth_key=1863555089-bc9d1e326da44c9cb276be8d7a836996-0-f6131313ba165c0b30ea85ee637714fe"
+                alt="ASOBRICK FACTORY" class="header-logo">
+            <div>
+                <h4 class="header-title">مانوەڵەکانی ئامێرەکانی کارگە</h4>
+                <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9;">ASOBRICK FACTORY</p>
+            </div>
+        </div>
+        <div>
+            <span id="userInfo" class="me-3"></span>
+            <button class="btn btn-light btn-sm me-2" onclick="goToDashboard()">
+                <i class="bi bi-house-door"></i> پەڕەی سەرەکی
+            </button>
+            <button class="btn btn-light btn-sm" id="logoutBtn">
+                <i class="bi bi-box-arrow-right"></i> چوونەدەرەوە
+            </button>
+        </div>
+    </div>
+
+    <div class="container-main">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">مانوەڵەکان</h5>
+                <button class="btn btn-light btn-sm admin-only" id="addManualBtn" style="display: none;">
+                    <i class="bi bi-plus-circle"></i> زیادکردنی مانوەڵی نوێ
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="filter-buttons">
+                    <button class="btn btn-outline-primary filter-btn active" data-category="all">هەموو</button>
+                    <button class="btn btn-outline-primary filter-btn" data-category="safety">پاراستن</button>
+                    <button class="btn btn-outline-primary filter-btn" data-category="operation">کارکردن</button>
+                    <button class="btn btn-outline-primary filter-btn" data-category="maintenance">چاککردنەوە</button>
+                    <button class="btn btn-outline-primary filter-btn" data-category="emergency">فریاگوزاری</button>
+                </div>
+
+                <div id="manualsList">
+                    <!-- Manuals will be loaded here -->
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-book" style="font-size: 3rem; opacity: 0.3;"></i>
+                        <p class="mt-3">هیچ مانوەڵێک تۆمار نەکراوە</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Manual Modal -->
+    <div class="modal fade" id="addManualModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header"
+                    style="background: linear-gradient(to right, var(--primary-color), #2e7d32); color: white;">
+                    <h5 class="modal-title">زیادکردنی مانوەڵی نوێ</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="manualForm">
+                        <div class="mb-3">
+                            <label for="manualTitle" class="form-label">ناونیشان</label>
+                            <input type="text" class="form-control" id="manualTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="manualCategory" class="form-label">جۆر</label>
+                            <select class="form-select" id="manualCategory" required>
+                                <option value="safety">پاراستن</option>
+                                <option value="operation">کارکردن</option>
+                                <option value="maintenance">چاککردنەوە</option>
+                                <option value="emergency">فریاگوزاری</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="manualContent" class="form-label">ناوەڕۆک</label>
+                            <textarea class="form-control" id="manualContent" rows="6" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="manualFile" class="form-label">بەستەر بۆ فایل (دڵخواز)</label>
+                            <input type="text" class="form-control" id="manualFile"
+                                placeholder="https://example.com/manual.pdf">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">پاشتگەستبوونەوە</button>
+                    <button type="button" class="btn btn-primary" id="saveManualBtn">تۆمارکردن</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNodAq9MikVHaQRr4EZVfsbXp4SOfxDKQ",
+            authDomain: "abf6-96dcf.firebaseapp.com",
+            projectId: "abf6-96dcf",
+            storageBucket: "abf6-96dcf.firebasestorage.app",
+            messagingSenderId: "405357996484",
+            appId: "1:405357996484:web:b335cdf768ba415f3e9c91"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let manuals = [];
+        let currentFilter = 'all';
+
+        // Check authentication
+        window.addEventListener('load', function () {
+            const userStr = localStorage.getItem('currentUser');
+            if (!userStr) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentUser = JSON.parse(userStr);
+            document.getElementById('userInfo').textContent = `${currentUser.username} (${getRoleText(currentUser.role)})`;
+
+            // Show add button only for admin
+            if (currentUser.role === 'admin') {
+                document.getElementById('addManualBtn').style.display = 'inline-block';
+            }
+
+            loadManuals();
+        });
+
+        function getRoleText(role) {
+            const roles = {
+                'admin': 'بەڕێوبەر',
+                'manager': 'مانیجەر',
+                'supervisor': 'سەرپەرشتیار'
+            };
+            return roles[role] || role;
+        }
+
+        // Go to dashboard
+        function goToDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', function () {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        });
+
+        // Category names in Kurdish
+        const categoryNames = {
+            'safety': 'پاراستن',
+            'operation': 'کارکردن',
+            'maintenance': 'چاککردنەوە',
+            'emergency': 'فریاگوزاری'
+        };
+
+        // Load manuals from Firebase (NO DEPARTMENT FILTERING - accessible to everyone)
+        async function loadManuals() {
+            try {
+                const snapshot = await db.collection('manuals').orderBy('createdAt', 'desc').get();
+                manuals = [];
+                snapshot.forEach(doc => {
+                    manuals.push({ id: doc.id, ...doc.data() });
+                });
+                renderManuals();
+            } catch (error) {
+                console.error('Error loading manuals:', error);
+            }
+        }
+
+        // Render manuals list
+        function renderManuals() {
+            const container = document.getElementById('manualsList');
+            const filteredManuals = currentFilter === 'all'
+                ? manuals
+                : manuals.filter(m => m.category === currentFilter);
+
+            if (filteredManuals.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-book" style="font-size: 3rem; opacity: 0.3;"></i>
+                        <p class="mt-3">هیچ ڕێنماییەک نەدۆزرایەوە</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredManuals.map(manual => `
+                <div class="manual-item">
+                    <div class="manual-header">
+                        <h3 class="manual-title">${manual.title}</h3>
+                        <span class="manual-category">${categoryNames[manual.category]}</span>
+                    </div>
+                    <div class="manual-content">${manual.content}</div>
+                    ${manual.fileUrl ? `
+                        <div class="manual-file">
+                            <i class="bi bi-file-earmark-pdf"></i>
+                            <a href="${manual.fileUrl}" target="_blank">کردنەوەی فایل</a>
+                        </div>
+                    ` : ''}
+                    ${currentUser.role === 'admin' ? `
+                        <div class="mt-3">
+                            <button class="btn btn-sm btn-danger" onclick="deleteManual('${manual.id}')">
+                                <i class="bi bi-trash"></i> سڕینەوە
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.category;
+                renderManuals();
+            });
+        });
+
+        // Add manual button
+        document.getElementById('addManualBtn')?.addEventListener('click', function () {
+            document.getElementById('manualForm').reset();
+            const modal = new bootstrap.Modal(document.getElementById('addManualModal'));
+            modal.show();
+        });
+
+        // Save manual
+        document.getElementById('saveManualBtn').addEventListener('click', async function () {
+            const title = document.getElementById('manualTitle').value;
+            const category = document.getElementById('manualCategory').value;
+            const content = document.getElementById('manualContent').value;
+            const fileUrl = document.getElementById('manualFile').value;
+
+            if (!title || !category || !content) {
+                alert('تکایە هەموو خانەکان پڕبکەرەوە');
+                return;
+            }
+
+            const manualData = {
+                title,
+                category,
+                content,
+                fileUrl: fileUrl || null,
+                createdBy: currentUser.username,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                await db.collection('manuals').add(manualData);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addManualModal'));
+                modal.hide();
+                loadManuals();
+                alert('ڕێنماییەکە بەسەرکەوتووی تۆمارکرا');
+            } catch (error) {
+                console.error('Error saving manual:', error);
+                alert('هەڵە لە تۆمارکردنی ڕێنمایی');
+            }
+        });
+
+        // Delete manual
+        async function deleteManual(id) {
+            if (!confirm('دڵنیایت لە سڕینەوەی ئەم ڕێنماییە؟')) return;
+
+            try {
+                await db.collection('manuals').doc(id).delete();
+                loadManuals();
+                alert('ڕێنماییەکە بەسەرکەوتووی سڕایەوە');
+            } catch (error) {
+                console.error('Error deleting manual:', error);
+                alert('هەڵە لە سڕینەوەی ڕێنمایی');
+            }
+        }
+    </script>
+</body>
+
+</html>

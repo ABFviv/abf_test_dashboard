@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASOBRICK FACTORY - چوونەژوورەوە</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #c62828;
+            --secondary-color: #2c3e50;
+        }
+
+        body {
+            background: linear-gradient(135deg, #c62828, #2c3e50);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .login-card {
+            width: 400px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+
+        .login-logo {
+            max-width: 200px;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #b71c1c;
+            border-color: #b71c1c;
+        }
+
+        .brand-red-text {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <img src="https://z-cdn-media.chatglm.cn/files/588e3070-4da2-4621-a23a-c3797a169aba_Aso-Brick-Factory.jpg?auth_key=1863555089-bc9d1e326da44c9cb276be8d7a836996-0-f6131313ba165c0b30ea85ee637714fe"
+                alt="ASOBRICK FACTORY" class="login-logo">
+            <h3 class="brand-red-text">سیستەمی بەڕێوبردنی کارمەند</h3>
+            <p class="text-muted">تکایە بچۆ ژوورەوە بۆ بەردەوامبوون</p>
+        </div>
+        <form id="loginForm">
+            <div class="mb-3">
+                <label for="username" class="form-label">ناوی بەکارهێنەر</label>
+                <input type="text" class="form-control" id="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">وشەی تێپەڕ</label>
+                <input type="password" class="form-control" id="password" required>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">چوونە ژوورەوە</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Check if already logged in
+        window.addEventListener('load', function () {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                window.location.href = 'dashboard.html';
+            }
+        });
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNodAq9MikVHaQRr4EZVfsbXp4SOfxDKQ",
+            authDomain: "abf6-96dcf.firebaseapp.com",
+            projectId: "abf6-96dcf",
+            storageBucket: "abf6-96dcf.firebasestorage.app",
+            messagingSenderId: "405357996484",
+            appId: "1:405357996484:web:b335cdf768ba415f3e9c91"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // User credentials
+        const users = {
+            admin: { password: 'admin2002', role: 'admin', department: 'all' },
+            manager: { password: 'manager1001', role: 'manager', department: 'all' },
+            himat: { password: 'himat6600', role: 'supervisor', department: 'cutting-setting' },
+            hemn: { password: 'hemn1212', role: 'supervisor', department: 'crushing-prep' },
+            samdar: { password: 'samdar7273', role: 'supervisor', department: 'unsetting' },
+            kiln: { password: 'kiln2626', role: 'supervisor', department: 'klin' },
+            sarezh: { password: 'sarezh1919', role: 'supervisor', department: 'electrical-ac' },
+            shalaw: { password: 'shalaw0198', role: 'supervisor', department: 'mechanical' }
+        };
+
+        // Handle login
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (users[username] && users[username].password === password) {
+                const currentUser = {
+                    username: username,
+                    role: users[username].role,
+                    department: users[username].department
+                };
+
+                // Store user data in localStorage
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                // Redirect to dashboard
+                window.location.href = 'dashboard.html';
+            } else {
+                alert('ناوی بەکارهێنەر یاخوود وشەی تێپەڕ هەڵەیە');
+            }
+        });
+    </script>
+</body>
+
+</html>
