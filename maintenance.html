@@ -4,9 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASOBRICK FACTORY - کاری چاککردنەوە</title>
+    <title>ASOBRICK FACTORY - چاککردنەوەی پێشکەوتوو</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Chart.js for Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -19,15 +21,17 @@
             --success-color: #2ecc71;
             --danger-color: #e74c3c;
             --warning-color: #f39c12;
+            --info-color: #0288d1;
         }
 
         body {
             background-color: #f5f7fa;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 50px;
         }
 
         .header {
-            background: linear-gradient(135deg, #1976d2, #0d47a1);
+            background: linear-gradient(135deg, #1565c0, #0d47a1);
             color: white;
             padding: 15px 30px;
             border-radius: 8px;
@@ -38,171 +42,446 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .header-logo {
-            height: 60px;
-            margin-left: 20px;
-        }
-
-        .header-brand {
+        .machine-selector {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin: 0 20px 20px 20px;
             display: flex;
             align-items: center;
+            gap: 15px;
         }
 
-        .header-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .container-main {
-            padding: 20px;
-        }
-
-        .card {
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-            border: none;
-        }
-
-        .card-header {
-            background: linear-gradient(to right, var(--primary-color), #1565c0);
-            color: white;
-            border-radius: 8px 8px 0 0 !important;
-            font-weight: 600;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-primary:hover {
-            background-color: #1565c0;
-            border-color: #1565c0;
-        }
-
-        .maintenance-item {
-            border: 1px solid #e0e0e0;
+        .kpi-card {
+            background: white;
             border-radius: 8px;
             padding: 15px;
-            margin-bottom: 15px;
-            background-color: #fff;
-            transition: all 0.2s ease;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            height: 100%;
+            border-bottom: 4px solid var(--primary-color);
         }
 
-        .maintenance-item:hover {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        .kpi-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--secondary-color);
         }
 
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.85rem;
+        .kpi-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .nav-tabs .nav-link {
+            color: #555;
+            font-weight: 500;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            border-top: 3px solid var(--primary-color);
+        }
+
+        .table-custom th {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .status-ok {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .status-warning {
+            color: var(--warning-color);
+            font-weight: bold;
+        }
+
+        .status-danger {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
+
+        /* Excel-like Table Styling */
+        .excel-table {
+            border-collapse: collapse;
+            width: 100%;
+            background: white;
+            font-size: 0.95rem;
+        }
+
+        .excel-table th,
+        .excel-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .excel-table th {
+            background-color: #f8f9fa;
             font-weight: 600;
         }
 
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
+        .excel-table tr:hover {
+            background-color: #f1f1f1;
         }
 
-        .status-inprogress {
-            background-color: #d1ecf1;
-            color: #0c5460;
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
         }
 
-        .status-completed {
-            background-color: #d4edda;
-            color: #155724;
+        .btn-float {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
         }
     </style>
 </head>
 
 <body>
+    <!-- Header -->
     <div class="header">
-        <div class="header-brand">
+        <div class="d-flex align-items-center">
             <img src="https://z-cdn-media.chatglm.cn/files/588e3070-4da2-4621-a23a-c3797a169aba_Aso-Brick-Factory.jpg?auth_key=1863555089-bc9d1e326da44c9cb276be8d7a836996-0-f6131313ba165c0b30ea85ee637714fe"
-                alt="ASOBRICK FACTORY" class="header-logo">
+                alt="ASOBRICK FACTORY" height="50" class="me-3">
             <div>
-                <h4 class="header-title">سیستەمی بەڕێوبردنی کاری چاککردنەوە</h4>
-                <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9;">ASOBRICK FACTORY</p>
+                <h4 class="m-0">بەڕێوبردنی چاککردنەوەی زیرەک</h4>
+                <p class="m-0 small opacity-75">Analysis & Predictive Maintenance</p>
             </div>
         </div>
         <div>
-            <span id="userInfo" class="me-3"></span>
-            <button class="btn btn-light btn-sm me-2" onclick="goToDashboard()">
+            <span id="userInfo" class="me-3 small"></span>
+            <button class="btn btn-light btn-sm me-2" onclick="window.location.href='dashboard.html'">
                 <i class="bi bi-house-door"></i> پەڕەی سەرەکی
             </button>
             <button class="btn btn-light btn-sm" id="logoutBtn">
-                <i class="bi bi-box-arrow-right"></i> چوونەدەرەوە
+                <i class="bi bi-box-arrow-right"></i>
             </button>
         </div>
     </div>
 
-    <div class="container-main">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">کارەکانی چاککردنەوە</h5>
-                <button class="btn btn-light btn-sm" id="addMaintenanceBtn">
-                    <i class="bi bi-plus-circle"></i> زیادکردنی کاری نوێ
-                </button>
-            </div>
-            <div class="card-body">
-                <div id="maintenanceList">
-                    <!-- Maintenance items will be loaded here -->
-                    <div class="text-center text-muted py-5">
-                        <i class="bi bi-tools" style="font-size: 3rem; opacity: 0.3;"></i>
-                        <p class="mt-3">هیچ کارێکی چاککردنەوە تۆمار نەکراوە</p>
-                        <button class="btn btn-primary" onclick="document.getElementById('addMaintenanceBtn').click()">
-                            <i class="bi bi-plus-circle"></i> زیادکردنی یەکەمین کار
+    <!-- Machine Selector -->
+    <div class="machine-selector">
+        <label for="machineSelect" class="fw-bold"><i class="bi bi-cpu"></i> ئامێر هەڵبژێرە:</label>
+        <select id="machineSelect" class="form-select w-auto" style="min-width: 200px;">
+            <option value="">-- ئامێرێک دیاری بکە --</option>
+            <!-- Machines loaded dynamically -->
+        </select>
+        <button class="btn btn-outline-primary btn-sm" onclick="openAddMachineModal()">
+            <i class="bi bi-plus-lg"></i> زیادکردنی ئامێر
+        </button>
+    </div>
+
+    <div class="container-fluid px-4">
+        <!-- Main Content (Hidden until machine selected) -->
+        <div id="mainContent" style="display: none;">
+
+            <!-- Navigation Tabs -->
+            <ul class="nav nav-tabs mb-4" id="maintenanceTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard"
+                        type="button" role="tab">
+                        <i class="bi bi-bar-chart-fill"></i> شیکاری و داهاتوو (Overview)
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="records-tab" data-bs-toggle="tab" data-bs-target="#records"
+                        type="button" role="tab">
+                        <i class="bi bi-tools"></i> تۆماری چاککردنەوە (Maintenance Log)
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="problems-tab" data-bs-toggle="tab" data-bs-target="#problems"
+                        type="button" role="tab">
+                        <i class="bi bi-exclamation-triangle-fill"></i> کێشە و وەستان (Problems)
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="legacy-tab" data-bs-toggle="tab" data-bs-target="#legacy" type="button"
+                        role="tab">
+                        <i class="bi bi-archive"></i> داواکاری گشتی (Legacy)
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="maintenanceTabsContent">
+
+                <!-- 1. DASHBOARD & ANALYSIS TAB -->
+                <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
+
+                    <!-- KPI Cards -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <div class="kpi-card" style="border-bottom-color: var(--danger-color);">
+                                <div class="kpi-value" id="kpiMTTR">--</div>
+                                <div class="kpi-label">MTTR (کاتژمێر)</div>
+                                <small class="text-muted" style="font-size: 0.7rem;">ناوەندی کاتی چاککردنەوە</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="kpi-card" style="border-bottom-color: var(--success-color);">
+                                <div class="kpi-value" id="kpiMTBF">--</div>
+                                <div class="kpi-label">MTBF (ڕۆژ)</div>
+                                <small class="text-muted" style="font-size: 0.7rem;">ناوەندی کات نێوان
+                                    وەستانەکان</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="kpi-card" style="border-bottom-color: var(--info-color);">
+                                <div class="kpi-value" id="kpiTotalCost">0</div>
+                                <div class="kpi-label">کۆی تێچووی ساڵ</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="kpi-card" style="border-bottom-color: var(--warning-color);">
+                                <div class="kpi-value" id="kpiDowntime">0</div>
+                                <div class="kpi-label">کۆی کاتژمێری وەستان</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Chart Section -->
+                        <div class="col-lg-7">
+                            <div class="chart-container">
+                                <h5 class="mb-3 text-center">بەراوردی چاککردنەوە بەپێی ساڵەکان</h5>
+                                <canvas id="maintenanceChart" height="150"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Prediction Table -->
+                        <div class="col-lg-5">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0 text-primary"><i class="bi bi-calendar-check"></i> چاککردنەوەی
+                                        پێشبینیکراو</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover mb-0 text-center">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>پارچە / کار</th>
+                                                    <th>بەرواری پێشبینیکراو</th>
+                                                    <th>ماوە (ڕۆژ)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="predictionTableBody">
+                                                <!-- Predictions loaded here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. MAINTENANCE RECORDS TAB -->
+                <div class="tab-pane fade" id="records" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="text-primary">تۆماری گۆڕانکاری و چاککردنەوەکان</h5>
+                        <button class="btn btn-primary" onclick="openAddRecordModal('maintenance')">
+                            <i class="bi bi-plus-lg"></i> زیادکردنی تۆمار
                         </button>
                     </div>
+                    <div class="table-responsive">
+                        <table class="excel-table">
+                            <thead>
+                                <tr>
+                                    <th>بەروار</th>
+                                    <th>ساڵ</th>
+                                    <th>پارچەی گۆڕدراو / کار</th>
+                                    <th>ژمارە / بڕ</th>
+                                    <th>تێچوو ($)</th>
+                                    <th>پێویستی (Frequency - ڕۆژ)</th>
+                                    <th>تێبینی</th>
+                                    <th>کردار</th>
+                                </tr>
+                            </thead>
+                            <tbody id="maintenanceLogBody">
+                                <!-- Logs loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 3. PROBLEMS & FAILURES TAB -->
+                <div class="tab-pane fade" id="problems" role="tabpanel">
+                    <div class="alert alert-warning d-flex align-items-center" role="alert">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <div>ئەم بەشە بۆ هەژمارکردنی MTTR و MTBF بەکاردێت. تکایە بە وردی کاتەکان پڕبکەرەوە.</div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="text-danger">تۆماری کێشە و وەستانەکان</h5>
+                        <button class="btn btn-danger" onclick="openAddRecordModal('problem')">
+                            <i class="bi bi-exclamation-octagon"></i> زیادکردنی کێشە
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="excel-table">
+                            <thead>
+                                <tr>
+                                    <th>بەروار</th>
+                                    <th>کێشە (Problem)</th>
+                                    <th>هۆکاری سەرەکی (Root Cause)</th>
+                                    <th>ماوەی وەستان (Downtime Hours)</th>
+                                    <th>چارەسەر</th>
+                                    <th>کردار</th>
+                                </tr>
+                            </thead>
+                            <tbody id="problemLogBody">
+                                <!-- Problem logs loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 4. LEGACY TAB (Old Data) -->
+                <div class="tab-pane fade" id="legacy" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            داواکارییە کۆنەکان (General Maintenance)
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">ئەمە لیستی ئەو داواکارییانەیە کە پەیوەست نین بە ئامێرێکی دیاریکراوەوە.
+                            </p>
+                            <div id="legacyMaintenanceList">
+                                <!-- Old maintenance items loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Placeholder when no machine selected -->
+        <div id="noMachineState" class="text-center py-5">
+            <i class="bi bi-cpu text-muted" style="font-size: 5rem;"></i>
+            <h3 class="text-muted mt-3">تکایە سەرەتا ئامێرێک هەڵبژێرە</h3>
+            <p>بۆ بینینی داتا و شیکارییەکان، ناوی ئامێرەکە لە لیستی سەرەوە دیاری بکە</p>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+
+    <!-- Add Machine Modal -->
+    <div class="modal fade" id="addMachineModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">زیادکردنی ئامێری نوێ</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addMachineForm">
+                        <div class="mb-3">
+                            <label class="form-label">ناوی ئامێر (Machine Name)</label>
+                            <input type="text" class="form-control" id="newMachineName" required
+                                placeholder="Example: Xtruder A1">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">بەش (Department)</label>
+                            <select class="form-select" id="newMachineDept" required>
+                                <option value="crushing-prep">وردکردن و ئامادەکردن</option>
+                                <option value="cutting-setting">بڕین و ڕێکخستن</option>
+                                <option value="klin">کوورە</option>
+                                <option value="unsetting">هەڵگرتن</option>
+                                <option value="mechanical">میکانیک (General)</option>
+                                <option value="electrical-ac">کارەبا (General)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">بەرواری کارکردن (Commission Date)</label>
+                            <input type="date" class="form-control" id="newMachineDate">
+                            <small class="text-muted">بۆ هەژمارکردنی MTBF گرنگە</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">زیادکردن</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Add Maintenance Modal -->
-    <div class="modal fade" id="addMaintenanceModal" tabindex="-1">
-        <div class="modal-dialog">
+    <!-- Add Record Modal (Shared for Maintenance and Problems) -->
+    <div class="modal fade" id="addRecordModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header"
-                    style="background: linear-gradient(to right, var(--primary-color), #1565c0); color: white;">
-                    <h5 class="modal-title">زیادکردنی کاری چاککردنەوە</h5>
+                <div class="modal-header bg-primary text-white" id="recordModalHeader">
+                    <h5 class="modal-title" id="recordModalTitle">تۆماری نوێ</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="maintenanceForm">
-                        <div class="mb-3">
-                            <label for="maintenanceTitle" class="form-label">ناوی کار</label>
-                            <input type="text" class="form-control" id="maintenanceTitle" required>
+                    <form id="recordForm">
+                        <input type="hidden" id="recordType"> <!-- 'maintenance' or 'problem' -->
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">بەروار</label>
+                                <input type="date" class="form-control" id="recDate" required>
+                            </div>
+
+                            <!-- Maintenance Fields -->
+                            <div class="col-md-6 maintenance-field">
+                                <label class="form-label">ناوی پارچە / کار</label>
+                                <input type="text" class="form-control" id="recPart">
+                            </div>
+                            <div class="col-md-6 maintenance-field">
+                                <label class="form-label">بڕ / ژمارە</label>
+                                <input type="number" class="form-control" id="recQty" value="1">
+                            </div>
+                            <div class="col-md-6 maintenance-field">
+                                <label class="form-label">تێچوو ($)</label>
+                                <input type="number" class="form-control" id="recCost" value="0">
+                            </div>
+                            <div class="col-md-6 maintenance-field">
+                                <label class="form-label">ماوەی مانەوە (Frequency - ڕۆژ)</label>
+                                <input type="number" class="form-control" id="recFreq"
+                                    placeholder="e.g. 365 for 1 year">
+                                <small class="text-muted">ئەمە دیاری دەکات کەی دیسان پێویستە بگۆڕدرێت</small>
+                            </div>
+
+                            <!-- Problem Fields -->
+                            <div class="col-md-12 problem-field" style="display:none;">
+                                <label class="form-label">کێشە (Problem Description)</label>
+                                <input type="text" class="form-control" id="recProblem">
+                            </div>
+                            <div class="col-md-12 problem-field" style="display:none;">
+                                <label class="form-label">هۆکاری سەرەکی (Root Cause)</label>
+                                <textarea class="form-control" id="recRootCause" rows="2"
+                                    placeholder="Why did it happen?"></textarea>
+                            </div>
+                            <div class="col-md-6 problem-field" style="display:none;">
+                                <label class="form-label">ماوەی وەستان (Downtime Hours)</label>
+                                <input type="number" step="0.1" class="form-control" id="recDowntime"
+                                    placeholder="Hours">
+                            </div>
+                            <div class="col-md-6 problem-field" style="display:none;">
+                                <label class="form-label">چارەسەر</label>
+                                <input type="text" class="form-control" id="recSolution">
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">تێبینی</label>
+                                <textarea class="form-control" id="recNote" rows="2"></textarea>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="maintenanceDescription" class="form-label">وردەکاری</label>
-                            <textarea class="form-control" id="maintenanceDescription" rows="4" required></textarea>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary w-100">تۆمارکردن</button>
                         </div>
-                        <div class="mb-3">
-                            <label for="maintenanceDepartment" class="form-label">بەش</label>
-                            <select class="form-select" id="maintenanceDepartment" required>
-                                <option value="">هەڵبژاردنی بەش</option>
-                                <option value="cutting-setting">بڕین و ڕێکخستن</option>
-                                <option value="crushing-prep">وردکردن و ئامادەکردن</option>
-                                <option value="unsetting">هەڵگرتن</option>
-                                <option value="klin">کوورە</option>
-                                <option value="electrical-ac">کارەبا و ئەی سی</option>
-                                <option value="mechanical">میکانیکی</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="maintenanceStatus" class="form-label">دۆخ</label>
-                            <select class="form-select" id="maintenanceStatus" required>
-                                <option value="pending">چاوەڕوان</option>
-                                <option value="inprogress">لە کاردایە</option>
-                                <option value="completed">تەواوبووە</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">تۆمارکردن</button>
                     </form>
                 </div>
             </div>
@@ -211,7 +490,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Firebase configuration
+        // --- 1. CONFIGURATION & SETUP ---
         const firebaseConfig = {
             apiKey: "AIzaSyDNodAq9MikVHaQRr4EZVfsbXp4SOfxDKQ",
             authDomain: "abf6-96dcf.firebaseapp.com",
@@ -220,185 +499,434 @@
             messagingSenderId: "405357996484",
             appId: "1:405357996484:web:b335cdf768ba415f3e9c91"
         };
-
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
         let currentUser = null;
+        let currentMachineId = null;
+        let currentMachineData = null;
+        let maintenanceChart = null; // Chart instance
 
-        // Check authentication
-        window.addEventListener('load', function () {
-            const userStr = localStorage.getItem('currentUser');
-            if (!userStr) {
-                window.location.href = 'index.html';
-                return;
-            }
-
+        // --- 2. AUTH CHECK ---
+        const userStr = localStorage.getItem('currentUser');
+        if (!userStr) {
+            window.location.href = 'index.html';
+        } else {
             currentUser = JSON.parse(userStr);
-            document.getElementById('userInfo').textContent = `${currentUser.username} (${getRoleText(currentUser.role)})`;
-
-            loadMaintenanceData();
-        });
-
-        function getRoleText(role) {
-            const roles = {
-                'admin': 'بەڕێوبەر',
-                'manager': 'مانیجەر',
-                'supervisor': 'سەرپەرشتیار'
-            };
-            return roles[role] || role;
+            document.getElementById('userInfo').textContent = `${currentUser.username}`;
+            initApp();
         }
 
-        function goToDashboard() {
-            window.location.href = 'dashboard.html';
-        }
-
-        document.getElementById('logoutBtn').addEventListener('click', function () {
+        document.getElementById('logoutBtn').addEventListener('click', () => {
             localStorage.removeItem('currentUser');
             window.location.href = 'index.html';
         });
 
-        // Load maintenance data
-        async function loadMaintenanceData() {
-            try {
-                let query = db.collection('maintenance').orderBy('createdAt', 'desc');
+        // --- 3. INITIALIZATION ---
+        function initApp() {
+            loadMachines();
+            loadLegacyMaintenance(); // Load old data so nothing is lost
+        }
 
-                // Filter by department for supervisors
+        // --- 4. MACHINE MANAGEMENT ---
+        async function loadMachines() {
+            const select = document.getElementById('machineSelect');
+            select.innerHTML = '<option value="">-- ئامێرێک دیاری بکە --</option>';
+
+            try {
+                // Get machines based on user department (or all if admin)
+                let query = db.collection('machines');
                 if (currentUser.role === 'supervisor') {
                     query = query.where('department', '==', currentUser.department);
                 }
 
                 const snapshot = await query.get();
-                const maintenanceList = document.getElementById('maintenanceList');
+                snapshot.forEach(doc => {
+                    const m = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = m.name;
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                console.error("Error loading machines:", err);
+            }
+        }
 
+        document.getElementById('machineSelect').addEventListener('change', function () {
+            currentMachineId = this.value;
+            if (currentMachineId) {
+                document.getElementById('noMachineState').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                loadMachineData(currentMachineId);
+            } else {
+                document.getElementById('noMachineState').style.display = 'block';
+                document.getElementById('mainContent').style.display = 'none';
+            }
+        });
+
+        function openAddMachineModal() {
+            // Only admin/manager or supervisor of that dept can add
+            document.getElementById('addMachineForm').reset();
+            if (currentUser.role === 'supervisor') {
+                document.getElementById('newMachineDept').value = currentUser.department;
+                document.getElementById('newMachineDept').disabled = true;
+            }
+            new bootstrap.Modal(document.getElementById('addMachineModal')).show();
+        }
+
+        document.getElementById('addMachineForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('newMachineName').value;
+            const dept = document.getElementById('newMachineDept').value;
+            const date = document.getElementById('newMachineDate').value;
+
+            try {
+                const docRef = await db.collection('machines').add({
+                    name: name,
+                    department: dept,
+                    commissionDate: date,
+                    createdAt: new Date()
+                });
+
+                // Add to dropdown and select it
+                const select = document.getElementById('machineSelect');
+                const option = document.createElement('option');
+                option.value = docRef.id;
+                option.textContent = name;
+                select.appendChild(option);
+                select.value = docRef.id;
+
+                // Trigger change
+                select.dispatchEvent(new Event('change'));
+
+                bootstrap.Modal.getInstance(document.getElementById('addMachineModal')).hide();
+                alert("ئامێر بەسەرکەوتووی زیادکرا");
+            } catch (err) {
+                alert("Error: " + err.message);
+            }
+        });
+
+        // --- 5. DATA LOADING & LOGIC ---
+        async function loadMachineData(machineId) {
+            // Get Machine Details
+            const mDoc = await db.collection('machines').doc(machineId).get();
+            currentMachineData = mDoc.data();
+
+            // Load Maintenance Logs (machine_logs collection)
+            const maintSnapshot = await db.collection('machine_logs')
+                .where('machineId', '==', machineId)
+                .where('type', '==', 'maintenance')
+                .orderBy('date', 'desc')
+                .get();
+
+            const maintLogs = [];
+            maintSnapshot.forEach(doc => maintLogs.push({ id: doc.id, ...doc.data() }));
+
+            // Load Problem Logs
+            const probSnapshot = await db.collection('machine_logs')
+                .where('machineId', '==', machineId)
+                .where('type', '==', 'problem')
+                .orderBy('date', 'desc')
+                .get();
+
+            const probLogs = [];
+            probSnapshot.forEach(doc => probLogs.push({ id: doc.id, ...doc.data() }));
+
+            // Render Views
+            renderMaintenanceTable(maintLogs);
+            renderProblemTable(probLogs);
+            calculateKPIs(probLogs, maintLogs);
+            renderChart(maintLogs);
+            renderPredictions(maintLogs);
+        }
+
+        // --- 6. RENDERING TABLES ---
+        function renderMaintenanceTable(logs) {
+            const tbody = document.getElementById('maintenanceLogBody');
+            tbody.innerHTML = '';
+
+            logs.forEach(log => {
+                const year = log.date.substring(0, 4);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${log.date}</td>
+                    <td>${year}</td>
+                    <td class="fw-bold">${log.part || '-'}</td>
+                    <td>${log.quantity || 1}</td>
+                    <td>$${log.cost || 0}</td>
+                    <td>${log.frequency ? log.frequency + ' Days' : '-'}</td>
+                    <td class="text-muted small">${log.note || ''}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteLog('${log.id}')"><i class="bi bi-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderProblemTable(logs) {
+            const tbody = document.getElementById('problemLogBody');
+            tbody.innerHTML = '';
+
+            logs.forEach(log => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${log.date}</td>
+                    <td class="fw-bold text-danger">${log.problem}</td>
+                    <td>${log.rootCause || '-'}</td>
+                    <td><span class="badge bg-warning text-dark">${log.downtime || 0} Hrs</span></td>
+                    <td>${log.solution || '-'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteLog('${log.id}')"><i class="bi bi-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- 7. CALCULATIONS (MTTR, MTBF) ---
+        function calculateKPIs(probLogs, maintLogs) {
+            let totalDowntime = 0;
+            let failureCount = probLogs.length;
+            let totalCost = 0;
+
+            // 1. Total Downtime & MTTR
+            probLogs.forEach(p => totalDowntime += parseFloat(p.downtime || 0));
+
+            const mttr = failureCount > 0 ? (totalDowntime / failureCount).toFixed(1) : 0;
+            document.getElementById('kpiMTTR').textContent = mttr;
+            document.getElementById('kpiDowntime').textContent = totalDowntime.toFixed(1);
+
+            // 2. MTBF Calculation
+            // Formula: (Total Operation Time - Total Downtime) / Failure Count
+            // Assume Operation Time = Days since commission * 24 (or simpler: just calendar days)
+            let daysRunning = 365; // Default 1 year if no date
+            if (currentMachineData.commissionDate) {
+                const start = new Date(currentMachineData.commissionDate);
+                const now = new Date();
+                const diffTime = Math.abs(now - start);
+                daysRunning = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            }
+
+            // Total Hours Available
+            const totalHours = daysRunning * 24;
+            const operationHours = totalHours - totalDowntime;
+
+            const mtbfDays = failureCount > 0 ? ((operationHours / 24) / failureCount).toFixed(1) : daysRunning;
+
+            document.getElementById('kpiMTBF').textContent = mtbfDays;
+
+            // 3. Total Cost
+            maintLogs.forEach(m => {
+                const d = new Date(m.date);
+                if (d.getFullYear() === new Date().getFullYear()) {
+                    totalCost += parseFloat(m.cost || 0);
+                }
+            });
+            document.getElementById('kpiTotalCost').textContent = '$' + totalCost.toLocaleString();
+        }
+
+        // --- 8. CHART JS ---
+        function renderChart(logs) {
+            const ctx = document.getElementById('maintenanceChart').getContext('2d');
+
+            // Group by Year
+            const years = {};
+            logs.forEach(log => {
+                const y = log.date.substring(0, 4);
+                years[y] = (years[y] || 0) + 1;
+            });
+
+            // Fill missing years for nice chart
+            const currentYear = new Date().getFullYear();
+            if (!years[currentYear]) years[currentYear] = 0;
+            if (!years[currentYear - 1]) years[currentYear - 1] = 0;
+
+            const labels = Object.keys(years).sort();
+            const data = labels.map(y => years[y]);
+
+            if (maintenanceChart) maintenanceChart.destroy();
+
+            maintenanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'ژمارەی چاککردنەوەکان (Number of Changes)',
+                        data: data,
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(255, 206, 86, 0.6)',
+                            'rgba(75, 192, 192, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+        }
+
+        // --- 9. PREDICTIONS (Next Maintenance) ---
+        function renderPredictions(logs) {
+            const tbody = document.getElementById('predictionTableBody');
+            tbody.innerHTML = '';
+
+            // Logic: Find latest record for each "part", check frequency, calculate next date.
+            const partHistory = {}; // { 'Oil Filter': { date: '2023-01-01', freq: 30 } }
+
+            // Sort logs oldest to newest so last one overwrites
+            const sortedLogs = [...logs].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            sortedLogs.forEach(log => {
+                if (log.part && log.frequency && log.frequency > 0) {
+                    partHistory[log.part] = {
+                        date: log.date,
+                        freq: parseInt(log.frequency)
+                    };
+                }
+            });
+
+            Object.keys(partHistory).forEach(part => {
+                const lastDate = new Date(partHistory[part].date);
+                const freq = partHistory[part].freq;
+
+                // Calc Next Date
+                const nextDate = new Date(lastDate);
+                nextDate.setDate(lastDate.getDate() + freq);
+
+                // Calc Days Remaining
+                const today = new Date();
+                const diffTime = nextDate - today;
+                const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                let statusClass = "text-success";
+                if (daysRemaining < 0) statusClass = "text-danger fw-bold"; // Overdue
+                else if (daysRemaining < 7) statusClass = "text-warning fw-bold"; // Due soon
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${part}</td>
+                    <td>${nextDate.toISOString().split('T')[0]}</td>
+                    <td class="${statusClass}">${daysRemaining}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if (Object.keys(partHistory).length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-muted">هیچ داتایەک بۆ پێشبینی نییە (Add logs with frequency)</td></tr>';
+            }
+        }
+
+
+        // --- 10. ADD RECORDS LOGIC ---
+        function openAddRecordModal(type) {
+            document.getElementById('recordForm').reset();
+            document.getElementById('recordType').value = type;
+            document.getElementById('recDate').valueAsDate = new Date();
+
+            if (type === 'maintenance') {
+                document.getElementById('recordModalTitle').textContent = "تۆماری چاککردنەوە (Maintenance)";
+                document.getElementById('recordModalHeader').className = "modal-header bg-primary text-white";
+                document.querySelectorAll('.maintenance-field').forEach(el => el.style.display = 'block');
+                document.querySelectorAll('.problem-field').forEach(el => el.style.display = 'none');
+            } else {
+                document.getElementById('recordModalTitle').textContent = "تۆماری کێشە (Problem)";
+                document.getElementById('recordModalHeader').className = "modal-header bg-danger text-white";
+                document.querySelectorAll('.maintenance-field').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.problem-field').forEach(el => el.style.display = 'block');
+            }
+
+            new bootstrap.Modal(document.getElementById('addRecordModal')).show();
+        }
+
+        document.getElementById('recordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const type = document.getElementById('recordType').value;
+            const data = {
+                machineId: currentMachineId,
+                type: type,
+                date: document.getElementById('recDate').value,
+                note: document.getElementById('recNote').value,
+                createdAt: new Date()
+            };
+
+            if (type === 'maintenance') {
+                data.part = document.getElementById('recPart').value;
+                data.quantity = document.getElementById('recQty').value;
+                data.cost = document.getElementById('recCost').value;
+                data.frequency = document.getElementById('recFreq').value;
+            } else {
+                data.problem = document.getElementById('recProblem').value;
+                data.rootCause = document.getElementById('recRootCause').value;
+                data.downtime = document.getElementById('recDowntime').value;
+                data.solution = document.getElementById('recSolution').value;
+            }
+
+            try {
+                await db.collection('machine_logs').add(data);
+                bootstrap.Modal.getInstance(document.getElementById('addRecordModal')).hide();
+                loadMachineData(currentMachineId); // Refresh
+                alert("تۆمارکرا");
+            } catch (err) {
+                alert("Error: " + err.message);
+            }
+        });
+
+        async function deleteLog(id) {
+            if (!confirm("دڵنیایت لە سڕینەوە؟")) return;
+            await db.collection('machine_logs').doc(id).delete();
+            loadMachineData(currentMachineId);
+        }
+
+        // --- 11. LEGACY DATA (Old Maintenance Collection) ---
+        async function loadLegacyMaintenance() {
+            try {
+                const list = document.getElementById('legacyMaintenanceList');
+                let query = db.collection('maintenance').orderBy('createdAt', 'desc').limit(10);
+
+                // Filter if supervisor
+                if (currentUser.role === 'supervisor') {
+                    query = query.where('department', '==', currentUser.department);
+                }
+
+                const snapshot = await query.get();
                 if (snapshot.empty) {
-                    maintenanceList.innerHTML = `
-                        <div class="text-center text-muted py-5">
-                            <i class="bi bi-tools" style="font-size: 3rem; opacity: 0.3;"></i>
-                            <p class="mt-3">هیچ کارێکی چاککردنەوە تۆمار نەکراوە</p>
-                            <button class="btn btn-primary" onclick="document.getElementById('addMaintenanceBtn').click()">
-                                <i class="bi bi-plus-circle"></i> زیادکردنی یەکەمین کار
-                            </button>
-                        </div>
-                    `;
+                    list.innerHTML = '<p class="text-muted text-center">هیچ داتایەکی کۆن نییە</p>';
                     return;
                 }
 
-                let html = '';
+                let html = '<ul class="list-group">';
                 snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const statusClass = `status-${data.status}`;
-                    const statusText = {
-                        'pending': 'چاوەڕوان',
-                        'inprogress': 'لە کاردایە',
-                        'completed': 'تەواوبووە'
-                    };
-                    const departmentText = getDepartmentText(data.department);
-
+                    const d = doc.data();
+                    const date = d.createdAt ? d.createdAt.toDate().toLocaleDateString() : '-';
                     html += `
-                        <div class="maintenance-item">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h6 class="mb-0">${data.title}</h6>
-                                <span class="status-badge ${statusClass}">${statusText[data.status]}</span>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${d.title}</strong><br>
+                                <small class="text-muted">${d.description}</small>
                             </div>
-                            <p class="mb-2">${data.description}</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">بەش: ${departmentText}</small>
-                                <small class="text-muted">${formatDate(data.createdAt)}</small>
-                            </div>
-                            <div class="mt-2">
-                                <button class="btn btn-sm btn-primary" onclick="editMaintenance('${doc.id}')">
-                                    <i class="bi bi-pencil"></i> دەستکاری
-                                </button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteMaintenanceItem('${doc.id}')">
-                                    <i class="bi bi-trash"></i> سڕینەوە
-                                </button>
-                            </div>
-                        </div>
+                            <span class="badge bg-secondary">${date}</span>
+                        </li>
                     `;
                 });
-
-                maintenanceList.innerHTML = html;
-            } catch (error) {
-                console.error('Error loading maintenance:', error);
-                alert('هەڵە لە بارکردنی داتا');
+                html += '</ul>';
+                list.innerHTML = html;
+            } catch (err) {
+                console.log("Legacy data load error (might be empty):", err);
             }
         }
 
-        function getDepartmentText(dept) {
-            const departments = {
-                'cutting-setting': 'بڕین و ڕێکخستن',
-                'crushing-prep': 'وردکردن و ئامادەکردن',
-                'unsetting': 'هەڵگرتن',
-                'klin': 'کوورە',
-                'electrical-ac': 'کارەبا و ئەی سی',
-                'mechanical': 'میکانیکی'
-            };
-            return departments[dept] || dept;
-        }
-
-        function formatDate(timestamp) {
-            if (!timestamp) return '';
-            const date = timestamp.toDate();
-            return date.toLocaleDateString('ku');
-        }
-
-        // Add maintenance modal
-        document.getElementById('addMaintenanceBtn').addEventListener('click', function () {
-            document.getElementById('maintenanceForm').reset();
-
-            // Pre-select department for supervisors
-            if (currentUser.role === 'supervisor') {
-                document.getElementById('maintenanceDepartment').value = currentUser.department;
-                document.getElementById('maintenanceDepartment').disabled = true;
-            } else {
-                document.getElementById('maintenanceDepartment').disabled = false;
-            }
-
-            const modal = new bootstrap.Modal(document.getElementById('addMaintenanceModal'));
-            modal.show();
-        });
-
-        // Save maintenance
-        document.getElementById('maintenanceForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            try {
-                const maintenanceData = {
-                    title: document.getElementById('maintenanceTitle').value,
-                    description: document.getElementById('maintenanceDescription').value,
-                    department: document.getElementById('maintenanceDepartment').value,
-                    status: document.getElementById('maintenanceStatus').value,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    createdBy: currentUser.username
-                };
-
-                await db.collection('maintenance').add(maintenanceData);
-
-                const modal = bootstrap.Modal.getInstance(document.getElementById('addMaintenanceModal'));
-                modal.hide();
-                loadMaintenanceData();
-                alert('کارەکە بەسەرکەوتووی تۆمارکرا');
-            } catch (error) {
-                console.error('Error saving maintenance:', error);
-                alert('هەڵە لە تۆمارکردنی کار');
-            }
-        });
-
-        // Delete maintenance item
-        async function deleteMaintenanceItem(id) {
-            if (!confirm('دڵنیایت لە سڕینەوەی ئەم کارە؟')) return;
-
-            try {
-                await db.collection('maintenance').doc(id).delete();
-                loadMaintenanceData();
-                alert('کارەکە بەسەرکەوتووی سڕایەوە');
-            } catch (error) {
-                console.error('Error deleting maintenance:', error);
-                alert('هەڵە لە سڕینەوەی کار');
-            }
-        }
     </script>
 </body>
 
