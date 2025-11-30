@@ -208,12 +208,6 @@
                         <i class="bi bi-exclamation-triangle-fill"></i> کێشە و وەستان (Problems)
                     </button>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="legacy-tab" data-bs-toggle="tab" data-bs-target="#legacy" type="button"
-                        role="tab">
-                        <i class="bi bi-archive"></i> داواکاری گشتی (Legacy)
-                    </button>
-                </li>
             </ul>
 
             <div class="tab-content" id="maintenanceTabsContent">
@@ -223,14 +217,14 @@
 
                     <!-- KPI Cards -->
                     <div class="row g-3 mb-4">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="kpi-card" style="border-bottom-color: var(--danger-color);">
                                 <div class="kpi-value" id="kpiMTTR">--</div>
                                 <div class="kpi-label">MTTR (کاتژمێر)</div>
                                 <small class="text-muted" style="font-size: 0.7rem;">ناوەندی کاتی چاککردنەوە</small>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="kpi-card" style="border-bottom-color: var(--success-color);">
                                 <div class="kpi-value" id="kpiMTBF">--</div>
                                 <div class="kpi-label">MTBF (ڕۆژ)</div>
@@ -238,13 +232,7 @@
                                     وەستانەکان</small>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="kpi-card" style="border-bottom-color: var(--info-color);">
-                                <div class="kpi-value" id="kpiTotalCost">0</div>
-                                <div class="kpi-label">کۆی تێچووی ساڵ</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="kpi-card" style="border-bottom-color: var(--warning-color);">
                                 <div class="kpi-value" id="kpiDowntime">0</div>
                                 <div class="kpi-label">کۆی کاتژمێری وەستان</div>
@@ -305,7 +293,6 @@
                                     <th>ساڵ</th>
                                     <th>پارچەی گۆڕدراو / کار</th>
                                     <th>ژمارە / بڕ</th>
-                                    <th>تێچوو ($)</th>
                                     <th>پێویستی (Frequency - ڕۆژ)</th>
                                     <th>تێبینی</th>
                                     <th>کردار</th>
@@ -346,22 +333,6 @@
                                 <!-- Problem logs loaded here -->
                             </tbody>
                         </table>
-                    </div>
-                </div>
-
-                <!-- 4. LEGACY TAB (Old Data) -->
-                <div class="tab-pane fade" id="legacy" role="tabpanel">
-                    <div class="card">
-                        <div class="card-header bg-secondary text-white">
-                            داواکارییە کۆنەکان (General Maintenance)
-                        </div>
-                        <div class="card-body">
-                            <p class="text-muted">ئەمە لیستی ئەو داواکارییانەیە کە پەیوەست نین بە ئامێرێکی دیاریکراوەوە.
-                            </p>
-                            <div id="legacyMaintenanceList">
-                                <!-- Old maintenance items loaded here -->
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -444,10 +415,6 @@
                                 <input type="number" class="form-control" id="recQty" value="1">
                             </div>
                             <div class="col-md-6 maintenance-field">
-                                <label class="form-label">تێچوو ($)</label>
-                                <input type="number" class="form-control" id="recCost" value="0">
-                            </div>
-                            <div class="col-md-6 maintenance-field">
                                 <label class="form-label">ماوەی مانەوە (Frequency - ڕۆژ)</label>
                                 <input type="number" class="form-control" id="recFreq"
                                     placeholder="e.g. 365 for 1 year">
@@ -525,7 +492,6 @@
         // --- 3. INITIALIZATION ---
         function initApp() {
             loadMachines();
-            loadLegacyMaintenance(); // Load old data so nothing is lost
         }
 
         // --- 4. MACHINE MANAGEMENT ---
@@ -609,36 +575,45 @@
 
         // --- 5. DATA LOADING & LOGIC ---
         async function loadMachineData(machineId) {
-            // Get Machine Details
-            const mDoc = await db.collection('machines').doc(machineId).get();
-            currentMachineData = mDoc.data();
+            try {
+                // Get Machine Details
+                const mDoc = await db.collection('machines').doc(machineId).get();
+                if (!mDoc.exists) {
+                    alert("ئامێر نەدۆزرایەوە");
+                    return;
+                }
+                currentMachineData = mDoc.data();
 
-            // Load Maintenance Logs (machine_logs collection)
-            const maintSnapshot = await db.collection('machine_logs')
-                .where('machineId', '==', machineId)
-                .where('type', '==', 'maintenance')
-                .orderBy('date', 'desc')
-                .get();
+                // Load Maintenance Logs (machine_logs collection)
+                const maintSnapshot = await db.collection('machine_logs')
+                    .where('machineId', '==', machineId)
+                    .where('type', '==', 'maintenance')
+                    .orderBy('date', 'desc')
+                    .get();
 
-            const maintLogs = [];
-            maintSnapshot.forEach(doc => maintLogs.push({ id: doc.id, ...doc.data() }));
+                const maintLogs = [];
+                maintSnapshot.forEach(doc => maintLogs.push({ id: doc.id, ...doc.data() }));
 
-            // Load Problem Logs
-            const probSnapshot = await db.collection('machine_logs')
-                .where('machineId', '==', machineId)
-                .where('type', '==', 'problem')
-                .orderBy('date', 'desc')
-                .get();
+                // Load Problem Logs
+                const probSnapshot = await db.collection('machine_logs')
+                    .where('machineId', '==', machineId)
+                    .where('type', '==', 'problem')
+                    .orderBy('date', 'desc')
+                    .get();
 
-            const probLogs = [];
-            probSnapshot.forEach(doc => probLogs.push({ id: doc.id, ...doc.data() }));
+                const probLogs = [];
+                probSnapshot.forEach(doc => probLogs.push({ id: doc.id, ...doc.data() }));
 
-            // Render Views
-            renderMaintenanceTable(maintLogs);
-            renderProblemTable(probLogs);
-            calculateKPIs(probLogs, maintLogs);
-            renderChart(maintLogs);
-            renderPredictions(maintLogs);
+                // Render Views
+                renderMaintenanceTable(maintLogs);
+                renderProblemTable(probLogs);
+                calculateKPIs(probLogs, maintLogs);
+                renderChart(maintLogs);
+                renderPredictions(maintLogs);
+            } catch (err) {
+                console.error("Error loading machine data:", err);
+                alert("هەڵە لە بارکردنی داتاکان: " + err.message);
+            }
         }
 
         // --- 6. RENDERING TABLES ---
@@ -647,14 +622,13 @@
             tbody.innerHTML = '';
 
             logs.forEach(log => {
-                const year = log.date.substring(0, 4);
+                const year = log.date ? log.date.substring(0, 4) : '-';
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${log.date}</td>
+                    <td>${log.date || '-'}</td>
                     <td>${year}</td>
                     <td class="fw-bold">${log.part || '-'}</td>
                     <td>${log.quantity || 1}</td>
-                    <td>$${log.cost || 0}</td>
                     <td>${log.frequency ? log.frequency + ' Days' : '-'}</td>
                     <td class="text-muted small">${log.note || ''}</td>
                     <td>
@@ -663,6 +637,10 @@
                 `;
                 tbody.appendChild(tr);
             });
+
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">هیچ تۆمارێک نییە</td></tr>';
+            }
         }
 
         function renderProblemTable(logs) {
@@ -672,8 +650,8 @@
             logs.forEach(log => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${log.date}</td>
-                    <td class="fw-bold text-danger">${log.problem}</td>
+                    <td>${log.date || '-'}</td>
+                    <td class="fw-bold text-danger">${log.problem || '-'}</td>
                     <td>${log.rootCause || '-'}</td>
                     <td><span class="badge bg-warning text-dark">${log.downtime || 0} Hrs</span></td>
                     <td>${log.solution || '-'}</td>
@@ -683,13 +661,16 @@
                 `;
                 tbody.appendChild(tr);
             });
+
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">هیچ تۆمارێک نییە</td></tr>';
+            }
         }
 
         // --- 7. CALCULATIONS (MTTR, MTBF) ---
         function calculateKPIs(probLogs, maintLogs) {
             let totalDowntime = 0;
             let failureCount = probLogs.length;
-            let totalCost = 0;
 
             // 1. Total Downtime & MTTR
             probLogs.forEach(p => totalDowntime += parseFloat(p.downtime || 0));
@@ -699,8 +680,6 @@
             document.getElementById('kpiDowntime').textContent = totalDowntime.toFixed(1);
 
             // 2. MTBF Calculation
-            // Formula: (Total Operation Time - Total Downtime) / Failure Count
-            // Assume Operation Time = Days since commission * 24 (or simpler: just calendar days)
             let daysRunning = 365; // Default 1 year if no date
             if (currentMachineData.commissionDate) {
                 const start = new Date(currentMachineData.commissionDate);
@@ -716,15 +695,6 @@
             const mtbfDays = failureCount > 0 ? ((operationHours / 24) / failureCount).toFixed(1) : daysRunning;
 
             document.getElementById('kpiMTBF').textContent = mtbfDays;
-
-            // 3. Total Cost
-            maintLogs.forEach(m => {
-                const d = new Date(m.date);
-                if (d.getFullYear() === new Date().getFullYear()) {
-                    totalCost += parseFloat(m.cost || 0);
-                }
-            });
-            document.getElementById('kpiTotalCost').textContent = '$' + totalCost.toLocaleString();
         }
 
         // --- 8. CHART JS ---
@@ -734,8 +704,10 @@
             // Group by Year
             const years = {};
             logs.forEach(log => {
-                const y = log.date.substring(0, 4);
-                years[y] = (years[y] || 0) + 1;
+                if (log.date) {
+                    const y = log.date.substring(0, 4);
+                    years[y] = (years[y] || 0) + 1;
+                }
             });
 
             // Fill missing years for nice chart
@@ -827,7 +799,6 @@
             }
         }
 
-
         // --- 10. ADD RECORDS LOGIC ---
         function openAddRecordModal(type) {
             document.getElementById('recordForm').reset();
@@ -864,8 +835,8 @@
             if (type === 'maintenance') {
                 data.part = document.getElementById('recPart').value;
                 data.quantity = document.getElementById('recQty').value;
-                data.cost = document.getElementById('recCost').value;
                 data.frequency = document.getElementById('recFreq').value;
+                // Cost field removed as requested
             } else {
                 data.problem = document.getElementById('recProblem').value;
                 data.rootCause = document.getElementById('recRootCause').value;
@@ -876,54 +847,22 @@
             try {
                 await db.collection('machine_logs').add(data);
                 bootstrap.Modal.getInstance(document.getElementById('addRecordModal')).hide();
-                loadMachineData(currentMachineId); // Refresh
+                loadMachineData(currentMachineId); // Refresh data
                 alert("تۆمارکرا");
             } catch (err) {
-                alert("Error: " + err.message);
+                console.error("Error adding record:", err);
+                alert("هەڵە لە تۆمارکردن: " + err.message);
             }
         });
 
         async function deleteLog(id) {
             if (!confirm("دڵنیایت لە سڕینەوە؟")) return;
-            await db.collection('machine_logs').doc(id).delete();
-            loadMachineData(currentMachineId);
-        }
-
-        // --- 11. LEGACY DATA (Old Maintenance Collection) ---
-        async function loadLegacyMaintenance() {
             try {
-                const list = document.getElementById('legacyMaintenanceList');
-                let query = db.collection('maintenance').orderBy('createdAt', 'desc').limit(10);
-
-                // Filter if supervisor
-                if (currentUser.role === 'supervisor') {
-                    query = query.where('department', '==', currentUser.department);
-                }
-
-                const snapshot = await query.get();
-                if (snapshot.empty) {
-                    list.innerHTML = '<p class="text-muted text-center">هیچ داتایەکی کۆن نییە</p>';
-                    return;
-                }
-
-                let html = '<ul class="list-group">';
-                snapshot.forEach(doc => {
-                    const d = doc.data();
-                    const date = d.createdAt ? d.createdAt.toDate().toLocaleDateString() : '-';
-                    html += `
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>${d.title}</strong><br>
-                                <small class="text-muted">${d.description}</small>
-                            </div>
-                            <span class="badge bg-secondary">${date}</span>
-                        </li>
-                    `;
-                });
-                html += '</ul>';
-                list.innerHTML = html;
+                await db.collection('machine_logs').doc(id).delete();
+                loadMachineData(currentMachineId);
+                alert("سڕایەوە");
             } catch (err) {
-                console.log("Legacy data load error (might be empty):", err);
+                alert("هەڵە لە سڕینەوە: " + err.message);
             }
         }
 
