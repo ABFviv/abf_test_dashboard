@@ -117,25 +117,43 @@
             color: #2e7d32;
         }
 
+        .manual-department {
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background-color: #e3f2fd;
+            color: #1565c0;
+            margin-right: 10px;
+        }
+
         .manual-content {
             color: #555;
             line-height: 1.6;
             margin-bottom: 15px;
         }
 
+        .manual-files {
+            margin-top: 15px;
+        }
+
         .manual-file {
             background-color: #f8f9fa;
             padding: 10px 15px;
             border-radius: 5px;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             gap: 10px;
-            margin-top: 10px;
+            margin-bottom: 8px;
         }
 
         .manual-file i {
             font-size: 1.5rem;
             color: var(--primary-color);
+        }
+
+        .file-name {
+            font-weight: 500;
         }
 
         .filter-buttons {
@@ -151,6 +169,24 @@
             background-color: var(--primary-color);
             color: white;
             border-color: var(--primary-color);
+        }
+
+        .file-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .file-input-group input {
+            flex: 1;
+        }
+
+        .add-file-btn {
+            margin-bottom: 15px;
+        }
+
+        .department-filter {
+            margin-bottom: 15px;
         }
     </style>
 </head>
@@ -186,7 +222,7 @@
             </div>
             <div class="card-body">
                 <div class="filter-buttons">
-                    <button class="btn btn-outline-primary filter-btn active" data-category="all">هەموو</button>
+                    <button class="btn btn-outline-primary filter-btn active" data-category="all">سەرجەمیان</button>
                     <button class="btn btn-outline-primary filter-btn" data-category="safety">هاڕین</button>
                     <button class="btn btn-outline-primary filter-btn" data-category="operation">ئامادەکردن</button>
                     <button class="btn btn-outline-primary filter-btn" data-category="maintenance">بڕین</button>
@@ -196,6 +232,8 @@
                     <button class="btn btn-outline-primary filter-btn" data-category="emergency">داگرتن</button>
                     <button class="btn btn-outline-primary filter-btn" data-category="emergency">کارەبا</button>
                 </div>
+
+    
 
                 <div id="manualsList">
                     <!-- Manuals will be loaded here -->
@@ -236,14 +274,19 @@
                                 <option value="emergency">کارەبا</option>
                             </select>
                         </div>
+                        
                         <div class="mb-3">
                             <label for="manualContent" class="form-label">ناوەڕۆک</label>
                             <textarea class="form-control" id="manualContent" rows="6" required></textarea>
                         </div>
                         <div class="mb-3">
-                            <label for="manualFile" class="form-label">بەستەر بۆ فایل (دڵخواز)</label>
-                            <input type="text" class="form-control" id="manualFile"
-                                placeholder="https://example.com/manual.pdf">
+                            <label class="form-label">فایلەکان</label>
+                            <button type="button" class="btn btn-outline-primary btn-sm add-file-btn" id="addFileBtn">
+                                <i class="bi bi-plus-circle"></i> زیادکردنی فایل
+                            </button>
+                            <div id="fileInputsContainer">
+                                <!-- File inputs will be added here -->
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -274,6 +317,7 @@
         let currentUser = null;
         let manuals = [];
         let currentFilter = 'all';
+        let currentDepartmentFilter = 'all';
 
         // Check authentication
         window.addEventListener('load', function () {
@@ -322,7 +366,16 @@
             'emergency': 'فریاگوزاری'
         };
 
-        // Load manuals from Firebase (NO DEPARTMENT FILTERING - accessible to everyone)
+        // Department names in Kurdish
+        const departmentNames = {
+            'production': 'بەشی بەرهەمهێنان',
+            'quality': 'بەشی جۆرەیی',
+            'maintenance': 'بەشی چاککردنەوە',
+            'safety': 'بەشی پاراستن',
+            'general': 'گشتی'
+        };
+
+        // Load manuals from Firebase
         async function loadManuals() {
             try {
                 const snapshot = await db.collection('manuals').orderBy('createdAt', 'desc').get();
@@ -339,9 +392,19 @@
         // Render manuals list
         function renderManuals() {
             const container = document.getElementById('manualsList');
-            const filteredManuals = currentFilter === 'all'
-                ? manuals
-                : manuals.filter(m => m.category === currentFilter);
+            
+            // Apply filters
+            let filteredManuals = manuals;
+            
+            // Category filter
+            if (currentFilter !== 'all') {
+                filteredManuals = filteredManuals.filter(m => m.category === currentFilter);
+            }
+            
+            // Department filter
+            if (currentDepartmentFilter !== 'all') {
+                filteredManuals = filteredManuals.filter(m => m.department === currentDepartmentFilter);
+            }
 
             if (filteredManuals.length === 0) {
                 container.innerHTML = `
@@ -357,13 +420,23 @@
                 <div class="manual-item">
                     <div class="manual-header">
                         <h3 class="manual-title">${manual.title}</h3>
-                        <span class="manual-category">${categoryNames[manual.category]}</span>
+                        <div>
+                            <span class="manual-department">${departmentNames[manual.department]}</span>
+                            <span class="manual-category">${categoryNames[manual.category]}</span>
+                        </div>
                     </div>
                     <div class="manual-content">${manual.content}</div>
-                    ${manual.fileUrl ? `
-                        <div class="manual-file">
-                            <i class="bi bi-file-earmark-pdf"></i>
-                            <a href="${manual.fileUrl}" target="_blank">کردنەوەی فایل</a>
+                    ${manual.files && manual.files.length > 0 ? `
+                        <div class="manual-files">
+                            ${manual.files.map(file => `
+                                <div class="manual-file">
+                                    <i class="bi bi-file-earmark-pdf"></i>
+                                    <span class="file-name">${file.name}</span>
+                                    <a href="${file.url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-download"></i> داگرتن
+                                    </a>
+                                </div>
+                            `).join('')}
                         </div>
                     ` : ''}
                     ${currentUser.role === 'admin' ? `
@@ -387,30 +460,72 @@
             });
         });
 
+        // Department filter
+        document.getElementById('departmentFilter').addEventListener('change', function() {
+            currentDepartmentFilter = this.value;
+            renderManuals();
+        });
+
         // Add manual button
         document.getElementById('addManualBtn')?.addEventListener('click', function () {
             document.getElementById('manualForm').reset();
+            document.getElementById('fileInputsContainer').innerHTML = '';
             const modal = new bootstrap.Modal(document.getElementById('addManualModal'));
             modal.show();
+        });
+
+        // Add file input
+        document.getElementById('addFileBtn').addEventListener('click', function() {
+            const container = document.getElementById('fileInputsContainer');
+            const fileIndex = container.children.length;
+            
+            const fileGroup = document.createElement('div');
+            fileGroup.className = 'file-input-group';
+            fileGroup.innerHTML = `
+                <input type="text" class="form-control" placeholder="ناوی فایل" id="fileName_${fileIndex}">
+                <input type="text" class="form-control" placeholder="بەستەری فایل (https://example.com/file.pdf)" id="fileUrl_${fileIndex}">
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="this.parentElement.remove()">
+                    <i class="bi bi-trash"></i>
+                </button>
+            `;
+            
+            container.appendChild(fileGroup);
         });
 
         // Save manual
         document.getElementById('saveManualBtn').addEventListener('click', async function () {
             const title = document.getElementById('manualTitle').value;
             const category = document.getElementById('manualCategory').value;
+            const department = document.getElementById('manualDepartment').value;
             const content = document.getElementById('manualContent').value;
-            const fileUrl = document.getElementById('manualFile').value;
+            
+            // Collect files
+            const files = [];
+            const fileInputs = document.getElementById('fileInputsContainer').children;
+            
+            for (let i = 0; i < fileInputs.length; i++) {
+                const nameInput = document.getElementById(`fileName_${i}`);
+                const urlInput = document.getElementById(`fileUrl_${i}`);
+                
+                if (nameInput && urlInput && nameInput.value && urlInput.value) {
+                    files.push({
+                        name: nameInput.value,
+                        url: urlInput.value
+                    });
+                }
+            }
 
-            if (!title || !category || !content) {
-                alert('تکایە هەموو خانەکان پڕبکەرەوە');
+            if (!title || !category || !department || !content) {
+                alert('تکایە هەموو خانە پێویستەکان پڕبکەرەوە');
                 return;
             }
 
             const manualData = {
                 title,
                 category,
+                department,
                 content,
-                fileUrl: fileUrl || null,
+                files: files.length > 0 ? files : null,
                 createdBy: currentUser.username,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
@@ -442,6 +557,5 @@
         }
     </script>
 </body>
-
 
 </html>
