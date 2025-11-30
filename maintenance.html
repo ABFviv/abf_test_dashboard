@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASOBRICK FACTORY - چاککردنەوەی پێشکەوتوو</title>
+    <title>ASOBRICK FACTORY - بەشی چاکسازی</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <!-- Chart.js for Graphs -->
@@ -157,7 +157,7 @@
             <img src="https://z-cdn-media.chatglm.cn/files/588e3070-4da2-4621-a23a-c3797a169aba_Aso-Brick-Factory.jpg?auth_key=1863555089-bc9d1e326da44c9cb276be8d7a836996-0-f6131313ba165c0b30ea85ee637714fe"
                 alt="ASOBRICK FACTORY" height="50" class="me-3">
             <div>
-                <h4 class="m-0">بەڕێوبردنی چاککردنەوەی زیرەک</h4>
+                <h4 class="m-0"> بەشی چاکسازی و کێشەکان </h4>
                 <p class="m-0 small opacity-75">Analysis & Predictive Maintenance</p>
             </div>
         </div>
@@ -193,19 +193,19 @@
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard"
                         type="button" role="tab">
-                        <i class="bi bi-bar-chart-fill"></i> شیکاری و داهاتوو (Overview)
+                        <i class="bi bi-bar-chart-fill"></i> شیکاری و داهاتوو
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="records-tab" data-bs-toggle="tab" data-bs-target="#records"
                         type="button" role="tab">
-                        <i class="bi bi-tools"></i> تۆماری چاککردنەوە (Maintenance Log)
+                        <i class="bi bi-tools"></i> تۆماری چاککردنەوە
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="problems-tab" data-bs-toggle="tab" data-bs-target="#problems"
                         type="button" role="tab">
-                        <i class="bi bi-exclamation-triangle-fill"></i> کێشە و وەستان (Problems)
+                        <i class="bi bi-exclamation-triangle-fill"></i> کێشە و وەستان
                     </button>
                 </li>
             </ul>
@@ -322,9 +322,9 @@
                             <thead>
                                 <tr>
                                     <th>بەروار</th>
-                                    <th>کێشە (Problem)</th>
-                                    <th>هۆکاری سەرەکی (Root Cause)</th>
-                                    <th>ماوەی وەستان (Downtime Hours)</th>
+                                    <th>کێشە</th>
+                                    <th>هۆکاری سەرەکی</th>
+                                    <th>ماوەی وەستان</th>
                                     <th>چارەسەر</th>
                                     <th>کردار</th>
                                 </tr>
@@ -360,17 +360,17 @@
                 <div class="modal-body">
                     <form id="addMachineForm">
                         <div class="mb-3">
-                            <label class="form-label">ناوی ئامێر (Machine Name)</label>
+                            <label class="form-label">ناوی ئامێر</label>
                             <input type="text" class="form-control" id="newMachineName" required
                                 placeholder="Example: Xtruder A1">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">بەش (Department)</label>
+                            <label class="form-label">بەش</label>
                             <select class="form-select" id="newMachineDept" required>
-                                <option value="crushing-prep">وردکردن و ئامادەکردن</option>
-                                <option value="cutting-setting">بڕین و ڕێکخستن</option>
-                                <option value="klin">کوورە</option>
-                                <option value="unsetting">هەڵگرتن</option>
+                                <option value="crushing-prep">هاڕین و ئامادەکردن</option>
+                                <option value="cutting-setting">بڕین و بارکردن</option>
+                                <option value="klin">فڕن</option>
+                                <option value="unsetting">داگرتن</option>
                                 <option value="mechanical">میکانیک (General)</option>
                                 <option value="electrical-ac">کارەبا (General)</option>
                             </select>
@@ -423,16 +423,16 @@
 
                             <!-- Problem Fields -->
                             <div class="col-md-12 problem-field" style="display:none;">
-                                <label class="form-label">کێشە (Problem Description)</label>
+                                <label class="form-label">کێشە </label>
                                 <input type="text" class="form-control" id="recProblem" required>
                             </div>
                             <div class="col-md-12 problem-field" style="display:none;">
-                                <label class="form-label">هۆکاری سەرەکی (Root Cause)</label>
+                                <label class="form-label">هۆکاری سەرەکی </label>
                                 <textarea class="form-control" id="recRootCause" rows="2"
                                     placeholder="Why did it happen?"></textarea>
                             </div>
                             <div class="col-md-6 problem-field" style="display:none;">
-                                <label class="form-label">ماوەی وەستان (Downtime Hours)</label>
+                                <label class="form-label">ماوەی وەستان </label>
                                 <input type="number" step="0.1" class="form-control" id="recDowntime" required
                                     placeholder="Hours">
                             </div>
@@ -828,7 +828,7 @@
             });
 
             if (Object.keys(partHistory).length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="text-muted">هیچ داتایەک بۆ پێشبینی نییە (Add logs with frequency)</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" class="text-muted">هیچ داتایەک بۆ پێشبینی نییە</td></tr>';
             }
         }
 
@@ -904,3 +904,4 @@
 </body>
 
 </html>
+
