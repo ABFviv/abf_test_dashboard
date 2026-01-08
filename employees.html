@@ -47,39 +47,51 @@
 
         /* --- Standards --- */
         .header-bar {
-            background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%);
+            background: #c62828;
             color: white;
-            padding: 15px 25px;
+            padding: 10px 20px;
             border-radius: 12px;
             margin-bottom: 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 10px 25px rgba(198, 40, 40, 0.15);
+            box-shadow: 0 4px 15px rgba(198, 40, 40, 0.2);
+        }
+
+        .btn-employee-accent {
+            background: #e57373 !important;
+            color: white !important;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-employee-accent:hover {
+            background: #ef5350 !important;
+            transform: translateY(-2px);
         }
 
         .btn-header {
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
             color: white;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 8px 20px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: 600;
-            font-size: 0.9rem;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            text-decoration: none;
+            justify-content: center;
+            transition: all 0.3s;
         }
 
         .btn-header:hover {
             background: white !important;
             color: #c62828 !important;
-            transform: translateY(-2px);
-            border-color: white;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
         }
 
         .user-badge {
@@ -1930,31 +1942,128 @@
             padding-top: 10px;
             border-top: 1px solid rgba(0, 0, 0, 0.05);
         }
+
+        /* Login Page Styles */
+        #loginPage {
+            background-color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .login-card {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .login-header-section {
+            margin-bottom: 40px;
+        }
+
+        .login-header-section h3 {
+            color: #c62828;
+            font-weight: 900;
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            letter-spacing: -0.5px;
+        }
+
+        .login-header-section p {
+            color: #64748b;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .login-logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
+        }
+
+        #loginForm .form-group {
+            margin-bottom: 25px;
+        }
+
+        #loginForm .form-control {
+            background-color: #f0f7ff;
+            border: 2px solid #e0e7ff;
+            height: 60px;
+            border-radius: 16px;
+            padding: 0 25px;
+            font-weight: 600;
+            color: #1e293b;
+            text-align: center;
+            font-size: 1.1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #loginForm .form-control:focus {
+            background-color: white;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.15);
+            transform: translateY(-2px);
+        }
+
+        #loginForm .form-label {
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 10px;
+            display: block;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .btn-login-red {
+            background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%) !important;
+            border: none !important;
+            height: 60px;
+            border-radius: 16px;
+            color: white !important;
+            font-weight: 800;
+            font-size: 1.25rem;
+            width: 100%;
+            margin-top: 15px;
+            box-shadow: 0 10px 20px rgba(198, 40, 40, 0.25);
+            transition: all 0.3s;
+        }
+
+        .btn-login-red:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(198, 40, 40, 0.35);
+        }
     </style>
 </head>
 
 <body>
     <!-- Login Page -->
-    <div class="login-container" id="loginPage">
+    <div id="loginPage">
         <div class="login-card">
-            <div class="text-center mb-4">
+            <div class="login-header-section">
                 <img src="https://z-cdn-media.chatglm.cn/files/588e3070-4da2-4621-a23a-c3797a169aba_Aso-Brick-Factory.jpg?auth_key=1863555089-bc9d1e326da44c9cb276be8d7a836996-0-f6131313ba165c0b30ea85ee637714fe"
                     alt="ASOBRICK FACTORY" class="login-logo">
-                <h3 class="red-accent">سیستەمی بەڕێوبردنی کارمەند</h3>
-                <p class="text-muted">تکایە بچۆ ژوورەوە بۆ بەردەوامبوون</p>
+                <h3>سیستەمی بەڕێوەبردنی کارمەند</h3>
+                <p>تکایە بچۆ ژوورەوە بۆ بەردەوامبوون</p>
             </div>
             <form id="loginForm">
-                <div class="mb-3">
+                <div class="mb-4">
                     <label for="username" class="form-label">ناوی بەکارهێنەر</label>
-                    <input type="text" class="form-control" id="username" required>
+                    <input type="text" class="form-control" id="username" placeholder="ناوی بەکارهێنەر بنوسە" required>
                 </div>
-                <div class="mb-3">
+                <div class="mb-4">
                     <label for="password" class="form-label">وشەی تێپەڕ</label>
-                    <input type="password" class="form-control" id="password" required>
+                    <input type="password" class="form-control" id="password" placeholder="وشەی تێپەڕ بنوسە" required>
                 </div>
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary">چوونە ژوورەوە</button>
-                </div>
+                <button type="submit" class="btn btn-login-red">چوونە ژوورەوە</button>
             </form>
         </div>
     </div>
@@ -1964,16 +2073,16 @@
         <div class="header-bar">
             <div class="logo-container">
                 <div class="logo-image-container">
-                    <img src="logo.png" alt="Logo"
-                        style="height: 40px; border-radius: 8px; background: white; padding: 4px;">
+                    <img src="https://z-cdn-media.chatglm.cn/files/588e3070-4da2-4621-a23a-c3797a169aba_Aso-Brick-Factory.jpg?auth_key=1863555089-bc9d1e326da44c9cb276be8d7a836996-0-f6131313ba165c0b30ea85ee637714fe"
+                        alt="Logo" style="height: 40px; border-radius: 8px; background: white; padding: 2px;">
                 </div>
                 <div>
-                    <h5 class="m-0 fw-bold" style="letter-spacing: 0.5px;">بەڕێوبردنی کارمەند</h5>
-                    <div style="font-size: 0.65rem; opacity: 0.8; font-weight: 600;">EMPLOYEE MANAGEMENT</div>
+                    <h5 class="m-0 fw-bold">بەڕێوەبردنی کارمەندان</h5>
+                    <div style="font-size: 0.6rem; opacity: 0.9; font-weight: 600;">EMPLOYEE MANAGEMENT</div>
                 </div>
             </div>
 
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center gap-3">
                 <div class="user-badge" id="userInfo">
                     <i class="bi bi-person-circle fs-5"></i>
                     <span>User</span>
@@ -1986,15 +2095,13 @@
                 </button>
 
                 <button class="btn btn-header" id="refreshBtn">
-                    <i class="bi bi-arrow-clockwise"></i>
+                    <i class="bi bi-arrow-clockwise fs-5"></i>
                 </button>
 
-                <button class="btn btn-header" onclick="window.location.href='dashboard.html'">
-                    <i class="bi bi-arrow-right-short fs-4"></i>
-                    <span>گەڕانەوە</span>
+                <button class="btn btn-employee-accent" onclick="window.location.href='dashboard.html'">
+                    <i class="bi bi-people-fill"></i>
+                    <span>کارمەند</span>
                 </button>
-
-                <button id="logoutBtn" style="display: none;"></button>
             </div>
         </div>
 
